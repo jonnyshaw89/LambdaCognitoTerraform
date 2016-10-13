@@ -174,23 +174,4 @@ resource "aws_iam_role" "LambdAuthVerifyUser" {
 POLICY
 }
 
-resource "aws_iam_role" "S3-Access" {
-    name               = "S3-Access"
-    path               = "/"
-    assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
-}
 
