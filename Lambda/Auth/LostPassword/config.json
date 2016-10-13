@@ -1,0 +1,10 @@
+{
+  "CRYPTO_BYTE_SIZE": 128,
+  "DDB_TABLE": "Users",
+  "IDENTITY_POOL_ID": "",
+  "DEVELOPER_PROVIDER_NAME": "login.mycompany.myapp",
+  "EXTERNAL_NAME": "My Authentication",
+  "EMAIL_SOURCE": "email@example.com",
+  "VERIFICATION_PAGE": "http://bucket.s3.amazonaws.com/verify.html",
+  "RESET_PAGE": "http://bucket.s3.amazonaws.com/reset.html"
+}
