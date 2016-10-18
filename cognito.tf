@@ -1,10 +1,10 @@
 // Cognito
 
-resource "null_resource" "create-identitypool" {
-  provisioner "local-exec" {
-    command = "aws cognito-identity create-identity-pool --identity-pool-name DashCam --allow-unauthenticated-identities --developer-provider-name login.terraform.dashcam"
-  }
-}
+//resource "null_resource" "create-identitypool" {
+//  provisioner "local-exec" {
+//    command = "aws cognito-identity create-identity-pool --identity-pool-name DashCam --allow-unauthenticated-identities --developer-provider-name login.terraform.dashcam"
+//  }
+//}
 
 //resource "null_resource" "create-identitypool-roles" {
 //  provisioner "local-exec" {
