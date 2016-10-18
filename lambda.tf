@@ -5,6 +5,7 @@ resource "aws_lambda_function" "createUser" {
   role = "${aws_iam_role.LambdAuthCreateUser.arn}"
   handler = "index.handler"
   runtime = "nodejs4.3"
+  source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/CreateUser.zip"))}"
 }
 
 resource "aws_lambda_function" "changePassword" {
@@ -13,6 +14,7 @@ resource "aws_lambda_function" "changePassword" {
   role = "${aws_iam_role.LambdAuthChangePassword.arn}"
   handler = "index.handler"
   runtime = "nodejs4.3"
+  source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/ChangePassword.zip"))}"
 }
 
 resource "aws_lambda_function" "login" {
@@ -21,6 +23,7 @@ resource "aws_lambda_function" "login" {
   role = "${aws_iam_role.LambdAuthLogin.arn}"
   handler = "index.handler"
   runtime = "nodejs4.3"
+  source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/Login.zip"))}"
 }
 
 resource "aws_lambda_function" "lostPassword" {
@@ -29,6 +32,7 @@ resource "aws_lambda_function" "lostPassword" {
   role = "${aws_iam_role.LambdAuthLostPassword.arn}"
   handler = "index.handler"
   runtime = "nodejs4.3"
+  source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/LostPassword.zip"))}"
 }
 
 resource "aws_lambda_function" "resetPassword" {
@@ -37,6 +41,7 @@ resource "aws_lambda_function" "resetPassword" {
   role = "${aws_iam_role.LambdAuthResetPassword.arn}"
   handler = "index.handler"
   runtime = "nodejs4.3"
+  source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/ResetPassword.zip"))}"
 }
 
 resource "aws_lambda_function" "verifyUser" {
@@ -45,4 +50,5 @@ resource "aws_lambda_function" "verifyUser" {
   role = "${aws_iam_role.LambdAuthVerifyUser.arn}"
   handler = "index.handler"
   runtime = "nodejs4.3"
+  source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/VerifyUser.zip"))}"
 }
