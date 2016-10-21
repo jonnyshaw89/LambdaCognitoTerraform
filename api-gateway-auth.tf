@@ -1,4 +1,4 @@
-§// API Gateway
+// API Gateway
 
 // /auth
 resource "aws_api_gateway_resource" "Auth" {
