@@ -23,7 +23,7 @@ resource "aws_api_gateway_method" "signup-POST" {
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_integration" "Auth-createAuth-integration" {
+resource "aws_api_gateway_integration" "Auth-createUser-integration" {
   rest_api_id = "${var.aws_api_gateway_rest_api_id}"
   resource_id = "${aws_api_gateway_resource.Auth.id}"
   http_method = "${aws_api_gateway_method.signup-POST.http_method}"
@@ -32,16 +32,16 @@ resource "aws_api_gateway_integration" "Auth-createAuth-integration" {
   integration_http_method = "POST"
 }
 
-resource "aws_api_gateway_method_response" "Auth-POST-200" {
+resource "aws_api_gateway_method_response" "signup-POST-200" {
   rest_api_id = "${var.aws_api_gateway_rest_api_id}"
   resource_id = "${aws_api_gateway_resource.Auth.id}"
   http_method = "${aws_api_gateway_method.signup-POST.http_method}"
   status_code = "200"
 }
 
-resource "aws_api_gateway_integration_response" "Auth-POST-Integration-Response" {
+resource "aws_api_gateway_integration_response" "signup-POST-Integration-Response" {
   rest_api_id = "${var.aws_api_gateway_rest_api_id}"
   resource_id = "${aws_api_gateway_resource.Auth.id}"
   http_method = "${aws_api_gateway_method.signup-POST.http_method}"
-  status_code = "${aws_api_gateway_method_response.Auth-POST-200.status_code}"
+  status_code = "${aws_api_gateway_method_response.signup-POST-200.status_code}"
 }
