@@ -37,8 +37,6 @@ function storeUser(email, password, salt, fn) {
 		if (err) return fn(err);
 		token = token.toString('hex');
 
-		console.log('Email [' + email + '], Password [' + password + '] passwordSalt [' + salt + '] Token [' + token + ']');
-
 		dynamodb.putItem({
 			TableName: config.DDB_TABLE,
 			Item: {
@@ -98,6 +96,8 @@ function sendVerificationEmail(email, token, fn) {
 
 exports.handler = function(event, context) {
 
+	var responseCode = 200;
+
 	var payload = JSON.parse(event.body)
 
 	var email = payload.email;
@@ -111,14 +111,16 @@ exports.handler = function(event, context) {
 				if (err) {
 					if (err.code == 'ConditionalCheckFailedException') {
 						// userId already found
-						context.succeed({
+						var response = {
 							statusCode: responseCode,
 							headers: {
 							},
 							body: JSON.stringify({
 								created: false
 							})
-						});
+						};
+						console.log("response: " + JSON.stringify(response))
+						context.succeed(response);
 					} else {
 						context.fail(new Error('Error in storeUser: ' + err));
 					}
@@ -127,14 +129,16 @@ exports.handler = function(event, context) {
 						if (err) {
 							context.fail(new Error('Error in sendVerificationEmail: ' + err));
 						} else {
-							context.succeed({
+							var response = {
 								statusCode: responseCode,
 								headers: {
 								},
 								body: JSON.stringify({
 									created: true
 								})
-							});
+							};
+							console.log("response: " + JSON.stringify(response))
+							context.succeed(response);
 						}
 					});
 				}

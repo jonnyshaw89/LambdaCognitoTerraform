@@ -4,7 +4,7 @@
   "IDENTITY_POOL_ID": "eu-west-1:353ae4ba-8028-4d8a-9a0f-08a54d6fec16",
   "DEVELOPER_PROVIDER_NAME": "login.mycompany.myapp",
   "EXTERNAL_NAME": "My Authentication",
-  "EMAIL_SOURCE": "email@example.com",
+  "EMAIL_SOURCE": "dashcam@jassoft.co.uk",
   "VERIFICATION_PAGE": "http://bucket.s3.amazonaws.com/verify.html",
   "RESET_PAGE": "http://bucket.s3.amazonaws.com/reset.html"
 }
