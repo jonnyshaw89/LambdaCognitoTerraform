@@ -28,7 +28,7 @@ function computeHash(password, salt, fn) {
 	}
 }
 
-function storeUser(dbTable, email, password, salt, fn) {
+function storeUser(event, email, password, salt, fn) {
 	// Bytesize
 	var len = 128;
 	crypto.randomBytes(len, function(err, token) {
@@ -36,7 +36,7 @@ function storeUser(dbTable, email, password, salt, fn) {
 		token = token.toString('hex');
 
 		dynamodb.putItem({
-			TableName: dbTable,
+			TableName: event.auth_db_table,
 			Item: {
 				email: {
 					S: email
@@ -62,7 +62,7 @@ function storeUser(dbTable, email, password, salt, fn) {
 	});
 }
 
-function sendVerificationEmail(email, token, event, fn) {
+function sendVerificationEmail(event, email, token, fn) {
 	var subject = 'Verification Email for ' + event.auth_application_name;
 	var verificationLink = event.auth_verification_page + '?email=' + encodeURIComponent(email) + '&verify=' + token;
 	ses.sendEmail({
@@ -105,7 +105,7 @@ exports.handler = function(event, context) {
 		if (err) {
 			context.fail(new Error('Error in hash: ' + err));
 		} else {
-			storeUser(event.auth_db_table, email, hash, salt, function(err, token) {
+			storeUser(event, email, hash, salt, function(err, token) {
 				if (err) {
 					if (err.code == 'ConditionalCheckFailedException') {
 						// userId already found
@@ -123,7 +123,7 @@ exports.handler = function(event, context) {
 						context.fail(new Error('Error in storeUser: ' + err));
 					}
 				} else {
-					sendVerificationEmail(email, token, event, function(err, data) {
+					sendVerificationEmail(event, email, token, function(err, data) {
 						if (err) {
 							context.fail(new Error('Error in sendVerificationEmail: ' + err));
 						} else {

@@ -2,14 +2,13 @@ console.log('Loading function');
 
 // dependencies
 var AWS = require('aws-sdk');
-var config = require('./config.json');
 
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
 
-function getUser(email, fn) {
+function getUser(event, email, fn) {
 	dynamodb.getItem({
-		TableName: config.DDB_TABLE,
+		TableName: event.auth_db_table,
 		Key: {
 			email: {
 				S: email
@@ -32,9 +31,9 @@ function getUser(email, fn) {
 	});
 }
 
-function updateUser(email, fn) {
+function updateUser(event, email, fn) {
 	dynamodb.updateItem({
-			TableName: config.DDB_TABLE,
+			TableName: event.auth_db_table,
 			Key: {
 				email: {
 					S: email
@@ -59,7 +58,7 @@ exports.handler = function(event, context) {
 	var email = event.email;
 	var verifyToken = event.verify;
 
-	getUser(email, function(err, verified, correctToken) {
+	getUser(event, email, function(err, verified, correctToken) {
 		if (err) {
 			context.fail('Error in getUser: ' + err);
 		} else if (verified) {
@@ -69,7 +68,7 @@ exports.handler = function(event, context) {
 			});
 		} else if (verifyToken == correctToken) {
 			// User verified
-			updateUser(email, function(err, data) {
+			updateUser(event, email, function(err, data) {
 				if (err) {
 					context.fail('Error in updateUser: ' + err);
 				} else {

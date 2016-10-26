@@ -3,7 +3,6 @@ console.log('Loading function');
 // dependencies
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
-var config = require('./config.json');
 
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
@@ -11,7 +10,7 @@ var cognitoidentity = new AWS.CognitoIdentity();
 
 function computeHash(password, salt, fn) {
 	// Bytesize
-	var len = config.CRYPTO_BYTE_SIZE;
+	var len = 128;
 	var iterations = 4096;
 
 	if (3 == arguments.length) {
@@ -29,9 +28,9 @@ function computeHash(password, salt, fn) {
 	}
 }
 
-function getUser(email, fn) {
+function getUser(event, email, fn) {
 	dynamodb.getItem({
-		TableName: config.DDB_TABLE,
+		TableName: event.auth_db_table,
 		Key: {
 			email: {
 				S: email
@@ -52,12 +51,12 @@ function getUser(email, fn) {
 	});
 }
 
-function getToken(email, fn) {
+function getToken(event, email, fn) {
 	var param = {
-		IdentityPoolId: config.IDENTITY_POOL_ID,
+		IdentityPoolId: event.auth_identity_pool,
 		Logins: {} // To have provider name in a variable
 	};
-	param.Logins[config.DEVELOPER_PROVIDER_NAME] = email;
+	param.Logins[event.auth_developer_provider_name] = email;
 	cognitoidentity.getOpenIdTokenForDeveloperIdentity(param,
 		function(err, data) {
 			if (err) return fn(err); // an error occurred
@@ -69,7 +68,7 @@ exports.handler = function(event, context) {
 	var email = event.email;
 	var clearPassword = event.password;
 
-	getUser(email, function(err, correctHash, salt, verified) {
+	getUser(event, email, function(err, correctHash, salt, verified) {
 		if (err) {
 			context.fail('Error in getUser: ' + err);
 		} else {
@@ -95,7 +94,7 @@ exports.handler = function(event, context) {
 						if (hash == correctHash) {
 							// Login ok
 							console.log('User logged in: ' + email);
-							getToken(email, function(err, identityId, token) {
+							getToken(event, email, function(err, identityId, token) {
 								if (err) {
 									context.fail('Error in getToken: ' + err);
 								} else {
