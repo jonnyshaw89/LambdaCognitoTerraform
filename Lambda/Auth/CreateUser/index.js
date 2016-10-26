@@ -36,7 +36,7 @@ function storeUser(event, email, password, salt, fn) {
 		token = token.toString('hex');
 
 		dynamodb.putItem({
-			TableName: event.auth_db_table,
+			TableName: event.stageVariables.auth_db_table,
 			Item: {
 				email: {
 					S: email
@@ -63,10 +63,10 @@ function storeUser(event, email, password, salt, fn) {
 }
 
 function sendVerificationEmail(event, email, token, fn) {
-	var subject = 'Verification Email for ' + event.auth_application_name;
-	var verificationLink = event.auth_verification_page + '?email=' + encodeURIComponent(email) + '&verify=' + token;
+	var subject = 'Verification Email for ' + event.stageVariables.auth_application_name;
+	var verificationLink = event.stageVariables.auth_verification_page + '?email=' + encodeURIComponent(email) + '&verify=' + token;
 	ses.sendEmail({
-		Source: event.auth_email_from_address,
+		Source: event.stageVariables.auth_email_from_address,
 		Destination: {
 			ToAddresses: [
 				email
@@ -96,7 +96,7 @@ exports.handler = function(event, context) {
 
 	var responseCode = 200;
 
-	var payload = JSON.parse(event.body)
+	var payload = JSON.parse(event.body);
 
 	var email = payload.email;
 	var clearPassword = payload.password;
