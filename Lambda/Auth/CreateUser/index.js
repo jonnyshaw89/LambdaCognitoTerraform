@@ -3,8 +3,6 @@ console.log('Loading function');
 // dependencies
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
-var util = require('util');
-var config = require('./config.json');
 
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
@@ -12,7 +10,7 @@ var ses = new AWS.SES();
 
 function computeHash(password, salt, fn) {
 	// Bytesize
-	var len = config.CRYPTO_BYTE_SIZE;
+	var len = 128;
 	var iterations = 4096;
 
 	if (3 == arguments.length) {
@@ -30,15 +28,15 @@ function computeHash(password, salt, fn) {
 	}
 }
 
-function storeUser(email, password, salt, fn) {
+function storeUser(dbTable, email, password, salt, fn) {
 	// Bytesize
-	var len = config.CRYPTO_BYTE_SIZE;
+	var len = 128;
 	crypto.randomBytes(len, function(err, token) {
 		if (err) return fn(err);
 		token = token.toString('hex');
 
 		dynamodb.putItem({
-			TableName: config.DDB_TABLE,
+			TableName: dbTable,
 			Item: {
 				email: {
 					S: email
@@ -64,11 +62,11 @@ function storeUser(email, password, salt, fn) {
 	});
 }
 
-function sendVerificationEmail(email, token, fn) {
-	var subject = 'Verification Email for ' + config.EXTERNAL_NAME;
-	var verificationLink = config.VERIFICATION_PAGE + '?email=' + encodeURIComponent(email) + '&verify=' + token;
+function sendVerificationEmail(email, token, event, fn) {
+	var subject = 'Verification Email for ' + event.auth_application_name;
+	var verificationLink = event.auth_verification_page + '?email=' + encodeURIComponent(email) + '&verify=' + token;
 	ses.sendEmail({
-		Source: config.EMAIL_SOURCE,
+		Source: event.auth_email_from_address,
 		Destination: {
 			ToAddresses: [
 				email
@@ -107,7 +105,7 @@ exports.handler = function(event, context) {
 		if (err) {
 			context.fail(new Error('Error in hash: ' + err));
 		} else {
-			storeUser(email, hash, salt, function(err, token) {
+			storeUser(event.auth_db_table, email, hash, salt, function(err, token) {
 				if (err) {
 					if (err.code == 'ConditionalCheckFailedException') {
 						// userId already found
@@ -125,7 +123,7 @@ exports.handler = function(event, context) {
 						context.fail(new Error('Error in storeUser: ' + err));
 					}
 				} else {
-					sendVerificationEmail(email, token, function(err, data) {
+					sendVerificationEmail(email, token, event, function(err, data) {
 						if (err) {
 							context.fail(new Error('Error in sendVerificationEmail: ' + err));
 						} else {
