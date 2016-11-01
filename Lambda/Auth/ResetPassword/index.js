@@ -3,14 +3,13 @@ console.log('Loading function');
 // dependencies
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
-var config = require('./config.json');
 
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
 
 function computeHash(password, salt, fn) {
 	// Bytesize
-	var len = config.CRYPTO_BYTE_SIZE;
+	var len = 128;
 	var iterations = 4096;
 
 	if (3 == arguments.length) {
@@ -28,9 +27,9 @@ function computeHash(password, salt, fn) {
 	}
 }
 
-function getUser(email, fn) {
+function getUser(event, email, fn) {
 	dynamodb.getItem({
-		TableName: config.DDB_TABLE,
+		TableName: event.stageVariables.auth_db_table,
 		Key: {
 			email: {
 				S: email
@@ -49,9 +48,9 @@ function getUser(email, fn) {
 	});
 }
 
-function updateUser(email, password, salt, fn) {
+function updateUser(event, email, password, salt, fn) {
 	dynamodb.updateItem({
-			TableName: config.DDB_TABLE,
+			TableName: event.stageVariables.auth_db_table,
 			Key: {
 				email: {
 					S: email
@@ -83,7 +82,7 @@ exports.handler = function(event, context) {
 	var lostToken = event.lost;
 	var newPassword = event.password;
 
-	getUser(email, function(err, correctToken) {
+	getUser(event, email, function(err, correctToken) {
 		if (err) {
 			context.fail('Error in getUser: ' + err);
 		} else if (!correctToken) {
@@ -103,7 +102,7 @@ exports.handler = function(event, context) {
 				if (err) {
 					context.fail('Error in computeHash: ' + err);
 				} else {
-					updateUser(email, newHash, newSalt, function(err, data) {
+					updateUser(event, email, newHash, newSalt, function(err, data) {
 						if (err) {
 							context.fail('Error in updateUser: ' + err);
 						} else {

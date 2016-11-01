@@ -3,15 +3,14 @@ console.log('Loading function');
 // dependencies
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
-var config = require('./config.json');
 
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
 var ses = new AWS.SES();
 
-function getUser(email, fn) {
+function getUser(event, email, fn) {
 	dynamodb.getItem({
-		TableName: config.DDB_TABLE,
+		TableName: event.stageVariables.auth_db_table,
 		Key: {
 			email: {
 				S: email
@@ -29,14 +28,14 @@ function getUser(email, fn) {
 	});
 }
 
-function storeLostToken(email, fn) {
+function storeLostToken(event, email, fn) {
 	// Bytesize
-	var len = config.CRYPTO_BYTE_SIZE;
+	var len = 128;
 	crypto.randomBytes(len, function(err, token) {
 		if (err) return fn(err);
 		token = token.toString('hex');
 		dynamodb.updateItem({
-				TableName: config.DDB_TABLE,
+				TableName: event.stageVariables.auth_db_table,
 				Key: {
 					email: {
 						S: email
@@ -58,12 +57,12 @@ function storeLostToken(email, fn) {
 	});
 }
 
-function sendLostPasswordEmail(email, token, fn) {
-	var subject = 'Password Lost for ' + config.EXTERNAL_NAME;
-	var lostLink = config.RESET_PAGE + '?email=' + encodeURIComponent(email) + '&lost=' + token;
+function sendLostPasswordEmail(event, email, token, fn) {
+	var subject = 'Password Lost for ' + event.stageVariables.auth_application_name;
+	var lostLink = event.stageVariables.auth_reset_page + '?email=' + encodeURIComponent(email) + '&lost=' + token;
 
 	ses.sendEmail({
-		Source: config.EMAIL_SOURCE,
+		Source: event.stageVariables.auth_email_from_address,
 		Destination: {
 			ToAddresses: [
 				email
@@ -92,7 +91,7 @@ function sendLostPasswordEmail(email, token, fn) {
 exports.handler = function(event, context) {
 	var email = event.email;
 
-	getUser(email, function(err, emailFound) {
+	getUser(event, email, function(err, emailFound) {
 		if (err) {
 			context.fail('Error in getUserFromEmail: ' + err);
 		} else if (!emailFound) {
@@ -101,11 +100,11 @@ exports.handler = function(event, context) {
 				sent: false
 			});
 		} else {
-			storeLostToken(email, function(err, token) {
+			storeLostToken(event, email, function(err, token) {
 				if (err) {
 					context.fail('Error in storeLostToken: ' + err);
 				} else {
-					sendLostPasswordEmail(email, token, function(err, data) {
+					sendLostPasswordEmail(event, email, token, function(err, data) {
 						if (err) {
 							context.fail('Error in sendLostPasswordEmail: ' + err);
 						} else {
