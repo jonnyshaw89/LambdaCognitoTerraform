@@ -1,3 +1,4 @@
+// Do i still need these as im now going through API Gateway
 resource "aws_iam_role_policy" "Cognito_LambdAuthAuth_Role_Cognito_LambdAuthAuth_Role" {
     name   = "Cognito_LambdAuthAuth_Role"
     role   = "Cognito_LambdAuthAuth_Role"
