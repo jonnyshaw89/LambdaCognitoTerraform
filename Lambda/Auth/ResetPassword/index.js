@@ -7,6 +7,20 @@ var crypto = require('crypto');
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
 
+var responseSuccess = {
+	statusCode: 200,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
+var responseError = {
+	statusCode: 500,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
 function computeHash(password, salt, fn) {
 	// Bytesize
 	var len = 128;
@@ -78,38 +92,50 @@ function updateUser(event, email, password, salt, fn) {
 }
 
 exports.handler = function(event, context) {
-	var email = event.email;
-	var lostToken = event.lost;
-	var newPassword = event.password;
+
+	var payload = JSON.parse(event.body);
+
+	var email = payload.email;
+	var lostToken = payload.lost;
+	var newPassword = payload.password;
 
 	getUser(event, email, function(err, correctToken) {
 		if (err) {
-			context.fail('Error in getUser: ' + err);
+			responseError.body = new Error('Error in getUser: ' + err)
+			context.fail(responseError);
 		} else if (!correctToken) {
 			console.log('No lostToken for user: ' + email);
-			context.succeed({
+			responseSuccess.body = JSON.stringify({
 				changed: false
-			});
+			})
+			console.log("response: " + JSON.stringify(responseSuccess))
+			context.succeed(responseSuccess);
 		} else if (lostToken != correctToken) {
 			// Wrong token, no password lost
 			console.log('Wrong lostToken for user: ' + email);
-			context.succeed({
+			responseSuccess.body = JSON.stringify({
 				changed: false
-			});
+			})
+			console.log("response: " + JSON.stringify(responseSuccess))
+			context.succeed(responseSuccess);
 		} else {
 			console.log('User logged in: ' + email);
 			computeHash(newPassword, function(err, newSalt, newHash) {
 				if (err) {
-					context.fail('Error in computeHash: ' + err);
+					responseError.body = new Error('Error in computeHash: ' + err)
+					context.fail(responseError);
 				} else {
 					updateUser(event, email, newHash, newSalt, function(err, data) {
 						if (err) {
-							context.fail('Error in updateUser: ' + err);
+							responseError.body = new Error('Error in updateUser: ' + err)
+							context.fail(responseError);
 						} else {
 							console.log('User password changed: ' + email);
-							context.succeed({
+							responseSuccess.body = JSON.stringify({
 								changed: true
-							});
+							})
+							console.log("response: " + JSON.stringify(responseSuccess))
+							context.succeed(responseSuccess);
 						}
 					});
 				}

@@ -154,7 +154,7 @@ resource "aws_iam_role_policy" "LambdAuthLogin_LambdAuthLogin" {
       "Action": [
         "cognito-identity:GetOpenIdTokenForDeveloperIdentity"
       ],
-      "Resource": "arn:aws:cognito-identity:${var.aws_region}:${var.aws_account_id}:identitypool/${var.aws_region}:${var.aws_cognito_identity_pool_id}"
+      "Resource": "arn:aws:cognito-identity:${var.aws_region}:${var.aws_account_id}:identitypool/${var.aws_cognito_identity_pool_id}"
     },
     {
       "Sid": "",

@@ -8,6 +8,20 @@ var crypto = require('crypto');
 var dynamodb = new AWS.DynamoDB();
 var ses = new AWS.SES();
 
+var responseSuccess = {
+	statusCode: 200,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
+var responseError = {
+	statusCode: 500,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
 function computeHash(password, salt, fn) {
 	// Bytesize
 	var len = 128;
@@ -94,8 +108,6 @@ function sendVerificationEmail(event, email, token, fn) {
 
 exports.handler = function(event, context) {
 
-	var responseCode = 200;
-
 	var payload = JSON.parse(event.body);
 
 	var email = payload.email;
@@ -103,40 +115,34 @@ exports.handler = function(event, context) {
 
 	computeHash(clearPassword, function(err, salt, hash) {
 		if (err) {
-			context.fail(new Error('Error in hash: ' + err));
+			responseError.body = new Error('Error in hash: ' + err)
+			context.fail(responseError);
 		} else {
 			storeUser(event, email, hash, salt, function(err, token) {
 				if (err) {
 					if (err.code == 'ConditionalCheckFailedException') {
 						// userId already found
-						var response = {
-							statusCode: responseCode,
-							headers: {
-							},
-							body: JSON.stringify({
-								created: false
-							})
-						};
-						console.log("response: " + JSON.stringify(response))
-						context.succeed(response);
+						responseSuccess.body = JSON.stringify({
+							created: false
+						})
+						console.log("response: " + JSON.stringify(responseSuccess))
+						context.succeed(responseSuccess);
 					} else {
-						context.fail(new Error('Error in storeUser: ' + err));
+						responseError.body = new Error('Error in storeUser: ' + err)
+						context.fail(responseError);
 					}
 				} else {
 					sendVerificationEmail(event, email, token, function(err, data) {
 						if (err) {
-							context.fail(new Error('Error in sendVerificationEmail: ' + err));
+							responseError.body = new Error('Error in sendVerificationEmail: ' + err)
+							context.fail(responseError);
 						} else {
-							var response = {
-								statusCode: responseCode,
-								headers: {
-								},
-								body: JSON.stringify({
-									created: true
-								})
-							};
-							console.log("response: " + JSON.stringify(response))
-							context.succeed(response);
+							responseSuccess.body = JSON.stringify({
+								created: true
+							})
+
+							console.log("response: " + JSON.stringify(responseSuccess))
+							context.succeed(responseSuccess);
 						}
 					});
 				}

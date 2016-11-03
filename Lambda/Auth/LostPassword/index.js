@@ -8,6 +8,20 @@ var crypto = require('crypto');
 var dynamodb = new AWS.DynamoDB();
 var ses = new AWS.SES();
 
+var responseSuccess = {
+	statusCode: 200,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
+var responseError = {
+	statusCode: 500,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
 function getUser(event, email, fn) {
 	dynamodb.getItem({
 		TableName: event.stageVariables.auth_db_table,
@@ -89,29 +103,39 @@ function sendLostPasswordEmail(event, email, token, fn) {
 }
 
 exports.handler = function(event, context) {
-	var email = event.email;
+
+	var payload = JSON.parse(event.body);
+
+	var email = payload.email;
 
 	getUser(event, email, function(err, emailFound) {
 		if (err) {
-			context.fail('Error in getUserFromEmail: ' + err);
+			responseError.body = new Error('Error in getUserFromEmail: ' + err)
+			context.fail(responseError);
 		} else if (!emailFound) {
 			console.log('User not found: ' + email);
-			context.succeed({
+			responseSuccess.body = JSON.stringify({
 				sent: false
-			});
+			})
+			console.log("response: " + JSON.stringify(responseSuccess))
+			context.succeed(responseSuccess);
 		} else {
 			storeLostToken(event, email, function(err, token) {
 				if (err) {
-					context.fail('Error in storeLostToken: ' + err);
+					responseError.body = new Error('Error in storeLostToken: ' + err)
+					context.fail(responseError);
 				} else {
 					sendLostPasswordEmail(event, email, token, function(err, data) {
 						if (err) {
-							context.fail('Error in sendLostPasswordEmail: ' + err);
+							responseError.body = new Error('Error in sendLostPasswordEmail: ' + err)
+							context.fail(responseError);
 						} else {
 							console.log('User found: ' + email);
-							context.succeed({
+							responseSuccess.body = JSON.stringify({
 								sent: true
-							});
+							})
+							console.log("response: " + JSON.stringify(responseSuccess))
+							context.succeed(responseSuccess);
 						}
 					});
 				}

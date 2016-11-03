@@ -111,11 +111,6 @@ resource "aws_api_gateway_integration_response" "signup-POST-Integration-Respons
   resource_id = "${aws_api_gateway_resource.Signup.id}"
   http_method = "${aws_api_gateway_method.signup-POST.http_method}"
   status_code = "${aws_api_gateway_method_response.signup-POST-200.status_code}"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
-  }
 }
 
 
@@ -152,6 +147,9 @@ resource "aws_api_gateway_method_response" "login-POST-200" {
   resource_id = "${aws_api_gateway_resource.Login.id}"
   http_method = "${aws_api_gateway_method.login-POST.http_method}"
   status_code = "200"
+  response_models = {
+    "application/json" = "Empty"
+  }
   response_parameters = { "method.response.header.Access-Control-Allow-Origin" = "*" }
 }
 
@@ -160,11 +158,6 @@ resource "aws_api_gateway_integration_response" "login-POST-Integration-Response
   resource_id = "${aws_api_gateway_resource.Login.id}"
   http_method = "${aws_api_gateway_method.login-POST.http_method}"
   status_code = "${aws_api_gateway_method_response.login-POST-200.status_code}"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
-  }
 }
 
 // /changePassword OPTIONS
@@ -208,11 +201,6 @@ resource "aws_api_gateway_integration_response" "changePassword-POST-Integration
   resource_id = "${aws_api_gateway_resource.ChangePassword.id}"
   http_method = "${aws_api_gateway_method.changePassword-POST.http_method}"
   status_code = "${aws_api_gateway_method_response.changePassword-POST-200.status_code}"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
-  }
 }
 
 // /lostPassword OPTIONS
@@ -256,11 +244,6 @@ resource "aws_api_gateway_integration_response" "lostPassword-POST-Integration-R
   resource_id = "${aws_api_gateway_resource.LostPassword.id}"
   http_method = "${aws_api_gateway_method.lostPassword-POST.http_method}"
   status_code = "${aws_api_gateway_method_response.lostPassword-POST-200.status_code}"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
-  }
 }
 
 // /resetPassword OPTIONS
@@ -304,11 +287,6 @@ resource "aws_api_gateway_integration_response" "resetPassword-POST-Integration-
   resource_id = "${aws_api_gateway_resource.ResetPassword.id}"
   http_method = "${aws_api_gateway_method.resetPassword-POST.http_method}"
   status_code = "${aws_api_gateway_method_response.resetPassword-POST-200.status_code}"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
-  }
 }
 
 // /verifyUser OPTIONS
@@ -352,9 +330,4 @@ resource "aws_api_gateway_integration_response" "verifyUser-POST-Integration-Res
   resource_id = "${aws_api_gateway_resource.VerifyUser.id}"
   http_method = "${aws_api_gateway_method.verifyUser-POST.http_method}"
   status_code = "${aws_api_gateway_method_response.verifyUser-POST-200.status_code}"
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
-  }
 }

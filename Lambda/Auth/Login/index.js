@@ -8,6 +8,20 @@ var crypto = require('crypto');
 var dynamodb = new AWS.DynamoDB();
 var cognitoidentity = new AWS.CognitoIdentity();
 
+var responseSuccess = {
+	statusCode: 200,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
+var responseError = {
+	statusCode: 500,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
 function computeHash(password, salt, fn) {
 	// Bytesize
 	var len = 128;
@@ -65,30 +79,39 @@ function getToken(event, email, fn) {
 }
 
 exports.handler = function(event, context) {
-	var email = event.email;
-	var clearPassword = event.password;
+
+	var payload = JSON.parse(event.body);
+
+	var email = payload.email;
+	var clearPassword = payload.password;
 
 	getUser(event, email, function(err, correctHash, salt, verified) {
 		if (err) {
-			context.fail('Error in getUser: ' + err);
+			responseError.body = new Error('Error in getUser: ' + err)
+			context.fail(responseError);
 		} else {
 			if (correctHash == null) {
 				// User not found
 				console.log('User not found: ' + email);
-				context.succeed({
+				responseSuccess.body = JSON.stringify({
 					login: false
-				});
+				})
+				console.log("response: " + JSON.stringify(responseSuccess))
+				context.succeed(responseSuccess);
 			} else if (!verified) {
 				// User not verified
 				console.log('User not verified: ' + email);
-				context.succeed({
+				responseSuccess.body = JSON.stringify({
 					login: false,
 					verified: false,
-				});
+				})
+				console.log("response: " + JSON.stringify(responseSuccess))
+				context.succeed(responseSuccess);
 			} else {
 				computeHash(clearPassword, salt, function(err, salt, hash) {
 					if (err) {
-						context.fail('Error in hash: ' + err);
+						responseError.body = new Error('Error in hash: ' + err)
+						context.fail(responseError);
 					} else {
 						console.log('correctHash: ' + correctHash + ' hash: ' + hash);
 						if (hash == correctHash) {
@@ -96,21 +119,26 @@ exports.handler = function(event, context) {
 							console.log('User logged in: ' + email);
 							getToken(event, email, function(err, identityId, token) {
 								if (err) {
-									context.fail('Error in getToken: ' + err);
+									responseError.body = new Error('Error in getToken: ' + err)
+									context.fail(responseError);
 								} else {
-									context.succeed({
+									responseSuccess.body = JSON.stringify({
 										login: true,
 										identityId: identityId,
 										token: token
-									});
+									})
+									console.log("response: " + JSON.stringify(responseSuccess))
+									context.succeed(responseSuccess);
 								}
 							});
 						} else {
 							// Login failed
 							console.log('User login failed: ' + email);
-							context.succeed({
-								login: false
-							});
+							responseSuccess.body = JSON.stringify({
+								login:false
+							})
+							console.log("response: " + JSON.stringify(responseSuccess))
+							context.succeed(responseSuccess);
 						}
 					}
 				});

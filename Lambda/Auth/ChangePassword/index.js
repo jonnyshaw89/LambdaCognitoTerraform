@@ -7,6 +7,20 @@ var crypto = require('crypto');
 // Get reference to AWS clients
 var dynamodb = new AWS.DynamoDB();
 
+var responseSuccess = {
+	statusCode: 200,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
+var responseError = {
+	statusCode: 500,
+	headers: {
+		'Access-Control-Allow-Origin': '*'
+	}
+};
+
 function computeHash(password, salt, fn) {
 	// Bytesize
 	var len = 128;
@@ -76,40 +90,51 @@ function updateUser(event, email, password, salt, fn) {
 }
 
 exports.handler = function(event, context) {
-	var email = event.email;
-	var oldPassword = event.oldPassword;
-	var newPassword = event.newPassword;
+
+	var payload = JSON.parse(event.body);
+
+	var email = payload.email;
+	var oldPassword = payload.oldPassword;
+	var newPassword = payload.newPassword;
 
 	getUser(event, email, function(err, correctHash, salt) {
 		if (err) {
-			context.fail('Error in getUser: ' + err);
+			responseError.body = new Error('Error in getUser: ' + err)
+			context.fail(responseError);
 		} else {
 			if (correctHash == null) {
 				// User not found
 				console.log('User not found: ' + email);
-				context.succeed({
+				responseSuccess.body = JSON.stringify({
 					changed: false
-				});
+				})
+				console.log("response: " + JSON.stringify(responseSuccess))
+				context.succeed(responseSuccess);
 			} else {
 				computeHash(oldPassword, salt, function(err, salt, hash) {
 					if (err) {
-						context.fail('Error in hash: ' + err);
+						responseError.body = new Error('Error in hash: ' + err)
+						context.fail(responseError);
 					} else {
 						if (hash == correctHash) {
 							// Login ok
 							console.log('User logged in: ' + email);
 							computeHash(newPassword, function(err, newSalt, newHash) {
 								if (err) {
-									context.fail('Error in computeHash: ' + err);
+									responseError.body = new Error('Error in computeHash: ' + err)
+									context.fail(responseError);
 								} else {
 									updateUser(event, email, newHash, newSalt, function(err, data) {
 										if (err) {
-											context.fail('Error in updateUser: ' + err);
+											responseError.body = new Error('Error in updateUser: ' + err)
+											context.fail(responseError);
 										} else {
 											console.log('User password changed: ' + email);
-											context.succeed({
+											responseSuccess.body = JSON.stringify({
 												changed: true
-											});
+											})
+											console.log("response: " + JSON.stringify(responseSuccess))
+											context.succeed(responseSuccess);
 										}
 									});
 								}
@@ -117,9 +142,11 @@ exports.handler = function(event, context) {
 						} else {
 							// Login failed
 							console.log('User login failed: ' + email);
-							context.succeed({
+							responseSuccess.body = JSON.stringify({
 								changed: false
-							});
+							})
+							console.log("response: " + JSON.stringify(responseSuccess))
+							context.succeed(responseSuccess);
 						}
 					}
 				});

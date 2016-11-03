@@ -30,7 +30,7 @@ resource "aws_lambda_function" "login" {
   filename = "${path.module}/Lambda/Auth/Login.zip"
   function_name = "LambdAuthLogin"
   role = "${aws_iam_role.LambdAuthLogin.arn}"
-  handler = "index.handler"
+  handler = "Login.handler"
   runtime = "nodejs4.3"
   source_code_hash = "${base64sha256(file("${path.module}/Lambda/Auth/Login.zip"))}"
 }
