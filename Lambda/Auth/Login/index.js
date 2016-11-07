@@ -74,7 +74,18 @@ function getToken(event, email, fn) {
 	cognitoidentity.getOpenIdTokenForDeveloperIdentity(param,
 		function(err, data) {
 			if (err) return fn(err); // an error occurred
-			else fn(null, data.IdentityId, data.Token); // successful response
+			else fn(null, data.IdentityId); // successful response
+		});
+}
+
+function getCredentials(identityId, fn) {
+	var param = {
+		IdentityId: identityId
+	};
+	cognitoidentity.getCredentialsForIdentity(param,
+		function(err, data) {
+			if (err) return fn(err); // an error occurred
+			else fn(null, data.Credentials); // successful response
 		});
 }
 
@@ -117,18 +128,25 @@ exports.handler = function(event, context) {
 						if (hash == correctHash) {
 							// Login ok
 							console.log('User logged in: ' + email);
-							getToken(event, email, function(err, identityId, token) {
+							getToken(event, email, function(err, identityId) {
 								if (err) {
 									responseError.body = new Error('Error in getToken: ' + err)
 									context.fail(responseError);
 								} else {
-									responseSuccess.body = JSON.stringify({
-										login: true,
-										identityId: identityId,
-										token: token
+									getCredentials(identityId, function (err, credentials) {
+										if (err) {
+											responseError.body = new Error('Error in getCredentials: ' + err)
+											context.fail(responseError);
+										} else {
+											responseSuccess.body = JSON.stringify({
+												login: true,
+												credentials: credentials,
+												identityId: identityId,
+											})
+											console.log("response: " + JSON.stringify(responseSuccess))
+											context.succeed(responseSuccess);
+										}
 									})
-									console.log("response: " + JSON.stringify(responseSuccess))
-									context.succeed(responseSuccess);
 								}
 							});
 						} else {
