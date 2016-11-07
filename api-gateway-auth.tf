@@ -63,27 +63,6 @@ resource "aws_api_gateway_method" "signup-POST" {
   resource_id = "${aws_api_gateway_resource.Signup.id}"
   http_method = "POST"
   authorization = "NONE"
-  request_models = {
-    "application/json" = "${aws_api_gateway_model.generator_request_model.name}"
-  }
-}
-
-resource "aws_api_gateway_model" "generator_request_model" {
-  rest_api_id = "${var.aws_api_gateway_rest_api_id}"
-  name = "Configuration"
-  description = "A configuration schema"
-  content_type = "application/json"
-  schema = <<EOF
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "GeneratorConfiguration",
-  "type": "array",
-  "properties": {
-    "email": { "type": "string" },
-    "password": { "type": "string" }
-  }
-}
-EOF
 }
 
 resource "aws_api_gateway_integration" "Auth-createUser-integration" {
