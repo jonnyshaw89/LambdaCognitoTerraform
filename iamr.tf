@@ -14,7 +14,7 @@ resource "aws_iam_role" "Cognito_LambdAuthAuth_Role" {
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "cognito-identity.amazonaws.com:aud": "${var.aws_region}:${var.aws_cognito_identity_pool_id}"
+          "cognito-identity.amazonaws.com:aud": "${var.aws_cognito_identity_pool_id}"
         },
         "ForAnyValue:StringLike": {
           "cognito-identity.amazonaws.com:amr": "authenticated"
@@ -42,7 +42,7 @@ resource "aws_iam_role" "Cognito_LambdAuthUnauth_Role" {
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "cognito-identity.amazonaws.com:aud": "${var.aws_region}:${var.aws_cognito_identity_pool_id}"
+          "cognito-identity.amazonaws.com:aud": "${var.aws_cognito_identity_pool_id}"
         },
         "ForAnyValue:StringLike": {
           "cognito-identity.amazonaws.com:amr": "unauthenticated"

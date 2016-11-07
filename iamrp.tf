@@ -47,7 +47,8 @@ resource "aws_iam_role_policy" "Cognito_LambdAuthUnauth_Role_Cognito_LambdAuthUn
       "Effect": "Allow",
       "Action": [
         "mobileanalytics:PutEvents",
-        "cognito-sync:*"
+        "cognito-sync:*",
+        "cognito-identity:getCredentialsForIdentity"
       ],
       "Resource": [
         "*"

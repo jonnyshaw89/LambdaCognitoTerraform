@@ -119,7 +119,7 @@ exports.handler = function(event, context) {
 							console.log('User logged in: ' + email);
 							getToken(event, email, function(err, identityId, token) {
 								if (err) {
-									responseError.body = new Error('Error in getToken: ' + err)
+									responseError.body = 'Error in getToken: ' + err
 									context.fail(responseError);
 								} else {
 									responseSuccess.body = JSON.stringify({
