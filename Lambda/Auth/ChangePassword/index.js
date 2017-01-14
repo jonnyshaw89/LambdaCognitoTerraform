@@ -99,7 +99,7 @@ exports.handler = function(event, context) {
 
 	getUser(event, email, function(err, correctHash, salt) {
 		if (err) {
-			responseError.body = new Error('Error in getUser: ' + err)
+			responseError.body = JSON.stringify(new Error('Error in getUser: ' + err))
 			context.fail(responseError);
 		} else {
 			if (correctHash == null) {
@@ -113,7 +113,7 @@ exports.handler = function(event, context) {
 			} else {
 				computeHash(oldPassword, salt, function(err, salt, hash) {
 					if (err) {
-						responseError.body = new Error('Error in hash: ' + err)
+						responseError.body = JSON.stringify(new Error('Error in hash: ' + err))
 						context.fail(responseError);
 					} else {
 						if (hash == correctHash) {
@@ -121,12 +121,12 @@ exports.handler = function(event, context) {
 							console.log('User logged in: ' + email);
 							computeHash(newPassword, function(err, newSalt, newHash) {
 								if (err) {
-									responseError.body = new Error('Error in computeHash: ' + err)
+									responseError.body = JSON.stringify(new Error('Error in computeHash: ' + err))
 									context.fail(responseError);
 								} else {
 									updateUser(event, email, newHash, newSalt, function(err, data) {
 										if (err) {
-											responseError.body = new Error('Error in updateUser: ' + err)
+											responseError.body = JSON.stringify(new Error('Error in updateUser: ' + err))
 											context.fail(responseError);
 										} else {
 											console.log('User password changed: ' + email);
