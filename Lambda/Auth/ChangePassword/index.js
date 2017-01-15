@@ -1,4 +1,4 @@
-console.log('Loading function');
+console.log('Loading ChangePassword function');
 
 // dependencies
 var AWS = require('aws-sdk');
@@ -92,6 +92,8 @@ function updateUser(event, email, password, salt, fn) {
 exports.handler = function(event, context) {
 
 	var payload = JSON.parse(event.body);
+
+	console.log('Payload: ' + payload)
 
 	var email = payload.email;
 	var oldPassword = payload.oldPassword;
