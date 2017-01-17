@@ -93,15 +93,15 @@ exports.handler = function(event, context) {
 
 	var payload = JSON.parse(event.body);
 
-	console.log('Payload: ' + payload)
+	console.log('Payload: ' + JSON.stringify(payload))
 
-	var email = payload.email;
+	var email = event.requestContext.identity.cognitoAuthenticationProvider.split(':').pop();
 	var oldPassword = payload.oldPassword;
 	var newPassword = payload.newPassword;
 
 	getUser(event, email, function(err, correctHash, salt) {
 		if (err) {
-			responseError.body = JSON.stringify(new Error('Error in getUser: ' + err))
+			responseError.body = JSON.stringify(new Error('Error in getUser: ' + JSON.stringify(err)))
             console.log(JSON.stringify(responseError.body));
 			context.fail(responseError);
 		} else {

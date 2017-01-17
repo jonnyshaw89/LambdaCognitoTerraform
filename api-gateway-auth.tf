@@ -72,9 +72,9 @@ resource "aws_api_gateway_integration" "Auth-createUser-integration" {
   type = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.createUser.arn}/invocations"
   integration_http_method = "POST"
-  request_templates = {                  # Not documented
-    "application/json" = "${file("${path.module}/templates/Auth-createUser-integration.template")}"
-  }
+//  request_templates = {                  # Not documented
+//    "application/json" = "${file("${path.module}/templates/Auth-createUser-integration.template")}"
+//  }
 }
 
 resource "aws_api_gateway_method_response" "signup-POST-200" {
@@ -116,9 +116,9 @@ resource "aws_api_gateway_integration" "Auth-login-integration" {
   type = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.login.arn}/invocations"
   integration_http_method = "POST"
-  request_templates = {                  # Not documented
-    "application/json" = "${file("${path.module}/templates/Auth-login-integration.template")}"
-  }
+//  request_templates = {                  # Not documented
+//    "application/json" = "${file("${path.module}/templates/Auth-login-integration.template")}"
+//  }
 }
 
 resource "aws_api_gateway_method_response" "login-POST-200" {
@@ -152,7 +152,7 @@ resource "aws_api_gateway_method" "changePassword-POST" {
   rest_api_id = "${var.aws_api_gateway_rest_api_id}"
   resource_id = "${aws_api_gateway_resource.ChangePassword.id}"
   http_method = "POST"
-  authorization = "NONE"
+  authorization = "AWS_IAM"
 }
 
 resource "aws_api_gateway_integration" "Auth-changePassword-integration" {
@@ -162,9 +162,9 @@ resource "aws_api_gateway_integration" "Auth-changePassword-integration" {
   type = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.changePassword.arn}/invocations"
   integration_http_method = "POST"
-  request_templates = {                  # Not documented
-    "application/json" = "${file("${path.module}/templates/Auth-changePassword-integration.template")}"
-  }
+//  request_templates = {                  # Not documented
+//    "application/json" = "${file("${path.module}/templates/Auth-changePassword-integration.template")}"
+//  }
 }
 
 resource "aws_api_gateway_method_response" "changePassword-POST-200" {
@@ -205,9 +205,9 @@ resource "aws_api_gateway_integration" "Auth-lostPassword-integration" {
   type = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.lostPassword.arn}/invocations"
   integration_http_method = "POST"
-  request_templates = {                  # Not documented
-    "application/json" = "${file("${path.module}/templates/Auth-lostPassword-integration.template")}"
-  }
+//  request_templates = {                  # Not documented
+//    "application/json" = "${file("${path.module}/templates/Auth-lostPassword-integration.template")}"
+//  }
 }
 
 resource "aws_api_gateway_method_response" "lostPassword-POST-200" {
@@ -248,9 +248,9 @@ resource "aws_api_gateway_integration" "Auth-resetPassword-integration" {
   type = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.resetPassword.arn}/invocations"
   integration_http_method = "POST"
-  request_templates = {                  # Not documented
-    "application/json" = "${file("${path.module}/templates/Auth-resetPassword-integration.template")}"
-  }
+//  request_templates = {                  # Not documented
+//    "application/json" = "${file("${path.module}/templates/Auth-resetPassword-integration.template")}"
+//  }
 }
 
 resource "aws_api_gateway_method_response" "resetPassword-POST-200" {
@@ -291,9 +291,9 @@ resource "aws_api_gateway_integration" "Auth-verifyUser-integration" {
   type = "AWS_PROXY"
   uri = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.verifyUser.arn}/invocations"
   integration_http_method = "POST"
-  request_templates = {                  # Not documented
-    "application/json" = "${file("${path.module}/templates/Auth-verifyUser-integration.template")}"
-  }
+//  request_templates = {                  # Not documented
+//    "application/json" = "${file("${path.module}/templates/Auth-verifyUser-integration.template")}"
+//  }
 }
 
 resource "aws_api_gateway_method_response" "verifyUser-POST-200" {
