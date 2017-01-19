@@ -115,7 +115,7 @@ exports.handler = function(event, context) {
 
 	var email = payload.email;
 	var clearPassword = payload.password;
-    var plan = payload.plan;
+    var plan = payload.plan.toLowerCase();
 
 	computeHash(clearPassword, function(err, salt, hash) {
 		if (err) {
